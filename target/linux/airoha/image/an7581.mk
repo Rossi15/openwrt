@@ -207,6 +207,7 @@ define Device/tplink_xb432v
   DEVICE_PACKAGES := \
 	airoha-en7581-npu-firmware \
 	airoha-en8811h-firmware \
+	kmod-an7581-voip \
 	kmod-mt7992-firmware \
 	kmod-phy-airoha-en8811h \
 	kmod-usb3 \

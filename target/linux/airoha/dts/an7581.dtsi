@@ -414,6 +414,20 @@
 			status = "disabled";
 		};
 
+		voip: pcm@1fbd0000 {
+			compatible = "airoha,an7581-voip";
+			reg = <0x0 0x1fbd0000 0x0 0x5000>;
+			interrupts = <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
+			resets = <&scuclk EN7581_PCM_SPIWP_RST>,
+				 <&scuclk EN7581_PCM1_ZSI_ISI_RST>;
+			reset-names = "spiwp", "isi";
+
+			airoha,scu = <&scuclk>;
+			airoha,chip-scu = <&chip_scu>;
+
+			status = "disabled";
+		};
+
 		afe: afe@1fbe2200 {
 			compatible = "airoha,an7581-afe";
 			reg = <0x0 0x1fbe2200 0x0 0x9000>;

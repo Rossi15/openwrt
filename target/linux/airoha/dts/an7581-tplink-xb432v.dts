@@ -148,6 +148,13 @@
 		};
 	};
 
+	voip_pins: voip-pins {
+		mux {
+			function = "pcm";
+			groups = "pcm1";
+		};
+	};
+
 	pcie0_rst_pins: pcie0-rst-pins {
 		conf {
 			pins = "pcie_reset0";
@@ -313,6 +320,12 @@
 };
 
 &npu {
+	status = "okay";
+};
+
+&voip {
+	pinctrl-names = "default";
+	pinctrl-0 = <&voip_pins>;
 	status = "okay";
 };
 
