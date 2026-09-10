@@ -25,6 +25,22 @@ nokia,xg-040g-md-ubi)
 	ucidef_set_led_netdev "lan3" "lan3" "mt7530-0:0b:green:lan-3" "lan3" "link tx rx"
 	ucidef_set_led_netdev "lan4" "lan4" "mt7530-0:0c:green:lan-4" "lan4" "link tx rx"
 	;;
+tplink,xb432v)
+	# Front LEDs
+	ucidef_set_led_default	"power"			"POWER"		"blue:power"				"1"
+	ucidef_set_led_default	"fiber"			"FIBER"		"blue:fiber"				"0"
+	ucidef_set_led_default	"fiber-fault"	"NOFIBER"	"red:fiber"					"0"
+	ucidef_set_led_netdev	"internet"		"NET"		"blue:internet"				"wan"	"link tx rx"
+	ucidef_set_led_netdev	"lan"			"LAN"		"blue:lan"					"lan3"	"link tx rx"
+	ucidef_set_led_wlan		"wifi"			"WIFI"		"blue:wlan"					"phy0tpt"
+	ucidef_set_led_default	"phone"			"PHONE"		"blue:phone"				"0"
+	ucidef_set_led_usbport	"usb"			"USB"		"blue:usb"					"usb1-port1" "usb2-port1"
+	# Rear ports LEDs
+	ucidef_set_led_netdev	"lan1"			"LAN1"		"mt7530-0:0b:green:lan-1"	"lan1"	"link tx rx"
+	ucidef_set_led_netdev	"lan2"			"LAN2"		"mt7530-0:0a:green:lan-2"	"lan2"	"link tx rx"
+	ucidef_set_led_netdev	"lan3"			"LAN3"		"green:lan-3"				"lan3"	"link tx rx"
+	ucidef_set_led_netdev	"wan"			"WAN"		"green:wan"					"wan"	"link tx rx"
+	;;
 esac
 
 board_config_flush
