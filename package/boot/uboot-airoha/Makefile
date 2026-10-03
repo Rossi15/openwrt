@@ -52,6 +52,15 @@ define U-Boot/an7581_rfb
   DEPENDS:=+trusted-firmware-a-an7581-bl31
 endef
 
+define U-Boot/an7551_tplink_xb432v
+  NAME:=TP-Link XB432v
+  UBOOT_CONFIG:=an7551_tplink_xb432v
+  BUILD_DEVICES:=tplink_xb432v-ubi
+  BUILD_SUBTARGET:=an7581
+  BL2_IMAGE:=an7581-bl2.bin
+  BL31_IMAGE:=an7581-bl31.bin
+endef
+
 define U-Boot/an7583_nokia_xg-040g-mf
   NAME:=Nokia XG-040G-MF
   UBOOT_CONFIG:=an7583_nokia_xg-040g-mf
@@ -86,6 +95,7 @@ UBOOT_TARGETS := \
 	an7581_nokia_valyrian \
 	an7581_nokia_xg-040g-md \
 	an7581_rfb \
+	an7551_tplink_xb432v \
 	an7583_nokia_xg-040g-mf \
 	an7583_rfb \
 	en7523_rfb

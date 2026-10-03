@@ -28,6 +28,10 @@ an7581_setup_interfaces()
 		# Both copper ports are LAN; the upstream connection is PON.
 		ucidef_set_interface_lan "lan1 lan2"
 		;;
+	tplink,xb432v|\
+	tplink,xb432v-ubi)
+		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3" "wan"
+		;;
 	*)
 		echo "Unsupported hardware. Network interfaces not initialized"
 		;;

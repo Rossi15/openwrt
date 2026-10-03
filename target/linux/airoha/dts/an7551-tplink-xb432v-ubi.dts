@@ -1,0 +1,87 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+
+#include "an7551-tplink-xb432v-common.dtsi"
+
+/ {
+	model = "TP-Link XB432v (UBI)";
+	compatible = "tplink,xb432v-ubi", "airoha,an7581", "airoha,en7581";
+
+	chosen {
+		bootargs = "console=ttyS0,115200 earlycon";
+		rootdisk = <&ubi_fit>;
+	};
+};
+
+&partitions {
+	partition@0  {
+		label = "bl2";
+		reg = <0x0 0x100000>;
+		read-only;
+	};
+
+	partition@100000 {
+		label = "ubi";
+		reg = <0x100000 0x1ff00000>;
+		compatible = "linux,ubi";
+
+		volumes {
+			ubi-volume-art {
+				volname = "art";
+
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
+
+					wifi_eeprom: eeprom@40000 {
+						reg = <0x40000 0x1e00>;
+					};
+				};
+			};
+
+			ubi-volume-misc {
+				volname = "misc";
+
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
+
+					base_mac: macaddr@8f100 {
+						compatible = "mac-base";
+						reg = <0x8f100 0x6>;
+						#nvmem-cell-cells = <1>;
+					};
+				};
+			};
+
+			ubi_fit: ubi-volume-fit {
+				volname = "fit";
+			};
+
+			ubi-volume-fip {
+				volname = "fip";
+			};
+
+			ubi_env: ubi-volume-ubootenv {
+				volname = "ubootenv";
+			};
+
+			ubi_env2: ubi-volume-ubootenv2 {
+				volname = "ubootenv2";
+			};
+		};
+	};
+};
+
+&ubi_env {
+	nvmem-layout {
+		compatible = "u-boot,env-redundant-bool-layout";
+	};
+};
+
+&ubi_env2 {
+	nvmem-layout {
+		compatible = "u-boot,env-redundant-bool-layout";
+	};
+};
