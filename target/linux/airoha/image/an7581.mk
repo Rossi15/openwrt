@@ -198,18 +198,22 @@ define Device/nokia_xg-040g-md-ubi
 endef
 TARGET_DEVICES += nokia_xg-040g-md-ubi
 
-define Device/tplink_xb432v
+define Device/tplink_xb432v-common
   $(call Device/FitImageLzma)
   DEVICE_VENDOR := TP-Link
   DEVICE_MODEL := XB432v
-  DEVICE_DTS := an7581-tplink-xb432v
-  DEVICE_DTS_CONFIG := config@1
+  BLOCKSIZE := 256k
+  PAGESIZE := 4096
+  UBINIZE_OPTS := -E 5
   DEVICE_PACKAGES := airoha-en7581-npu-firmware airoha-en8811h-firmware \
     kmod-mt7992-firmware kmod-phy-airoha-en8811h kmod-usb3 \
     kmod-usb-ledtrig-usbport wpad-basic-mbedtls
-  UBINIZE_OPTS := -E 5
-  BLOCKSIZE := 256k
-  PAGESIZE := 4096
+endef
+
+define Device/tplink_xb432v
+  $(call Device/tplink_xb432v-common)
+  DEVICE_DTS := an7581-tplink-xb432v
+  DEVICE_DTS_CONFIG := config@1
   IMAGE_SIZE := 61184k
   KERNEL_SIZE := 10240k
   KERNEL := kernel-bin | lzma | \
@@ -218,3 +222,24 @@ define Device/tplink_xb432v
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 TARGET_DEVICES += tplink_xb432v
+
+define Device/tplink_xb432v-ubi
+  $(call Device/tplink_xb432v-common)
+  DEVICE_VARIANT := (UBI)
+  DEVICE_DTS := an7581-tplink-xb432v-ubi
+  UBOOTENV_IN_UBI := 1
+  KERNEL_IN_UBI := 1
+  KERNEL := kernel-bin | gzip
+  KERNEL_INITRAMFS := kernel-bin | lzma | \
+	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd | pad-to 128k
+  KERNEL_INITRAMFS_SUFFIX := -recovery.itb
+  IMAGES := sysupgrade.itb
+  IMAGE/sysupgrade.itb := append-kernel | \
+	fit gzip $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb external-static-with-rootfs | \
+	append-metadata
+  DEVICE_PACKAGES += fitblk
+  ARTIFACT/bl31-uboot.fip := an7581-bl31-uboot tplink_xb432v
+  ARTIFACT/preloader.bin := an7581-preloader tplink_xb432v
+  ARTIFACTS := bl31-uboot.fip preloader.bin
+endef
+TARGET_DEVICES += tplink_xb432v-ubi

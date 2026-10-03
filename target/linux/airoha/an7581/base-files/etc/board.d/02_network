@@ -24,7 +24,8 @@ an7581_setup_interfaces()
 	nokia,xg-040g-md-ubi)
 		ucidef_set_interface_lan "lan1 lan2 lan3 lan4"
 		;;
-	tplink,xb432v)
+	tplink,xb432v|\
+	tplink,xb432v-ubi)
 		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3" "wan"
 		;;
 	*)

@@ -25,7 +25,8 @@ nokia,xg-040g-md-ubi)
 	ucidef_set_led_netdev "lan3" "lan3" "mt7530-0:0b:green:lan-3" "lan3" "link tx rx"
 	ucidef_set_led_netdev "lan4" "lan4" "mt7530-0:0c:green:lan-4" "lan4" "link tx rx"
 	;;
-tplink,xb432v)
+tplink,xb432v|\
+tplink,xb432v-ubi)
 	# Front LEDs
 	ucidef_set_led_default	"power"			"POWER"		"blue:power"				"1"
 	ucidef_set_led_default	"fiber"			"FIBER"		"blue:fiber"				"0"
