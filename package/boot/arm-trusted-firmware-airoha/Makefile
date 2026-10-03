@@ -18,27 +18,78 @@ define Trusted-Firmware-A/Default
   BUILD_TARGET:=airoha
   PLAT:=en7523
   HIDDEN:=y
+  BOOT_DEVICE:=
+  USE_UBI:=
+  UBI_START_ADDR:=
 endef
 
 define Trusted-Firmware-A/bl2/Default
-  NAME:=Airoha an7581 bl2
   ARCH:=aarch32
   ATF_STAGE:=bl2
+  BOOT_DEVICE:=snand
+  USE_UBI:=
+  UBI_START_ADDR:=
 endef
 
-define Trusted-Firmware-A/an7581-bl2
+define Trusted-Firmware-A/an7581-snand-ubi-128k-bl2
   $(call Trusted-Firmware-A/bl2/Default)
+  NAME:=Airoha an7581 bl2 (SPI-NAND, UBI at 0x20000)
   BUILD_SUBTARGET:=an7581
   SOC:=EN7581
-  BUILD_DEVICES:=airoha_an7581-evb-multievb nokia_valyrian nokia_xg-040g-md-ubi
+  USE_UBI:=1
+  UBI_START_ADDR:=0x20000
+  BUILD_DEVICES:=nokia_xg-040g-md-ubi
 endef
 
-define Trusted-Firmware-A/an7583-bl2
+define Trusted-Firmware-A/an7581-snand-ubi-1m-bl2
   $(call Trusted-Firmware-A/bl2/Default)
+  NAME:=Airoha an7581 bl2 (SPI-NAND, UBI at 0x100000)
+  BUILD_SUBTARGET:=an7581
+  SOC:=EN7581
+  USE_UBI:=1
+  UBI_START_ADDR:=0x100000
+  BUILD_DEVICES:=tplink_xb432v-ubi
+endef
+
+define Trusted-Firmware-A/an7581-emmc-bl2
+  $(call Trusted-Firmware-A/bl2/Default)
+  NAME:=Airoha an7581 bl2 (eMMC)
+  BUILD_SUBTARGET:=an7581
+  SOC:=EN7581
+  BOOT_DEVICE:=emmc
+  BUILD_DEVICES:=nokia_valyrian
+endef
+
+define Trusted-Firmware-A/an7581-emmc-snand-ubi-128k-bl2
+  $(call Trusted-Firmware-A/bl2/Default)
+  NAME:=Airoha an7581 bl2 (eMMC + SPI-NAND, UBI at 0x20000)
+  BUILD_SUBTARGET:=an7581
+  SOC:=EN7581
+  BOOT_DEVICE:=emmc snand
+  USE_UBI:=1
+  UBI_START_ADDR:=0x20000
+  BUILD_DEVICES:=airoha_an7581-evb-multievb
+endef
+
+define Trusted-Firmware-A/an7583-snand-ubi-128k-bl2
+  $(call Trusted-Firmware-A/bl2/Default)
+  NAME:=Airoha an7583 bl2 (SPI-NAND, UBI at 0x20000)
   BUILD_SUBTARGET:=an7583
   SOC:=AN7583
-  BUILD_DEVICES:=airoha_an7583-evb-multievb \
-	nokia_xg-040g-mf-ubi
+  USE_UBI:=1
+  UBI_START_ADDR:=0x20000
+  BUILD_DEVICES:=nokia_xg-040g-mf-ubi
+endef
+
+define Trusted-Firmware-A/an7583-emmc-snand-ubi-128k-bl2
+  $(call Trusted-Firmware-A/bl2/Default)
+  NAME:=Airoha an7583 bl2 (eMMC + SPI-NAND, UBI at 0x20000)
+  BUILD_SUBTARGET:=an7583
+  SOC:=AN7583
+  BOOT_DEVICE:=emmc snand
+  USE_UBI:=1
+  UBI_START_ADDR:=0x20000
+  BUILD_DEVICES:=airoha_an7583-evb-multievb
 endef
 
 define Trusted-Firmware-A/bl31/Default
@@ -51,7 +102,8 @@ define Trusted-Firmware-A/an7581-bl31
   $(call Trusted-Firmware-A/bl31/Default)
   BUILD_SUBTARGET:=an7581
   SOC:=EN7581
-  BUILD_DEVICES:=airoha_an7581-evb-multievb nokia_valyrian nokia_xg-040g-md-ubi
+  BUILD_DEVICES:=airoha_an7581-evb-multievb nokia_valyrian \
+  nokia_xg-040g-md-ubi tplink_xb432v-ubi
 endef
 
 define Trusted-Firmware-A/an7583-bl31
@@ -59,12 +111,18 @@ define Trusted-Firmware-A/an7583-bl31
   BUILD_SUBTARGET:=an7583
   SOC:=AN7583
   BUILD_DEVICES:=airoha_an7583-evb-multievb \
-	nokia_xg-040g-mf-ubi
+  nokia_xg-040g-mf-ubi
 endef
 
 TFA_TARGETS:= \
-	an7581-bl2 an7581-bl31 \
-	an7583-bl2 an7583-bl31
+  an7581-snand-ubi-128k-bl2 \
+  an7581-snand-ubi-1m-bl2 \
+  an7581-emmc-bl2 \
+  an7581-emmc-snand-ubi-128k-bl2 \
+  an7581-bl31 \
+  an7583-snand-ubi-128k-bl2 \
+  an7583-emmc-snand-ubi-128k-bl2 \
+  an7583-bl31
 
 TFA_MAKE_FLAGS= \
 	ARM32TOOLCHAIN_BASE=$(PKG_BUILD_DIR)/$(BL2_GCC_SOURCE)/bin/arm-none-eabi- \
@@ -73,7 +131,10 @@ TFA_MAKE_FLAGS= \
 	TCSUPPORT_OPENWRT=1 TCSUPPORT_ATF_UNOPEN=0 \
 	TCSUPPORT_CPU_$(SOC)=1 TCSUPPORT_CPU_EN7523=1 \
 	TCSUPPORT_CPU_ARMV8=1 TCSUPPORT_UBOOT_64BIT=1 \
-	TCSUPPORT_EMMC=1 TCSUPPORT_UBOOT=1 TCSUPPORT_BL2_OPTIMIZATION=1 \
+	TCSUPPORT_UBOOT=1 TCSUPPORT_BL2_OPTIMIZATION=1 \
+	$(if $(filter emmc,$(BOOT_DEVICE)),TCSUPPORT_EMMC=1) \
+	$(if $(filter snand,$(BOOT_DEVICE)),TCSUPPORT_SPI_NAND_FLASH_ECC_DMA=1) \
+	$(if $(USE_UBI),TCSUPPORT_UBI_SUPPORT=1 OVERRIDE_UBI_START_ADDR=$(UBI_START_ADDR)) \
 	TOOLS_DIR=$(STAGING_DIR_HOST)/bin
 
 BL2_GCC_NAME:=arm-gnu-toolchain
@@ -92,10 +153,14 @@ endif
 endef
 
 define Download/atf-airoha
-  SOURCE_DATE:=2026-09-30
-  SOURCE_VERSION:=705478c3d84fb1cba4c2de1bb99c43098b785d61
-  URL:=https://github.com/Ansuel/atf-airoha.git
-  MIRROR_HASH:=24d08b8d47b7c9fa83cda20bd80b38f5872dc48f8ec770cb82582e7fa0c5b75c
+  #SOURCE_DATE:=2026-09-30
+  SOURCE_DATE:=2026-10-31
+  #SOURCE_VERSION:=705478c3d84fb1cba4c2de1bb99c43098b785d61
+  SOURCE_VERSION:=dcacedba36308032650ef8e1b279e2c02db7c077
+  #URL:=https://github.com/Ansuel/atf-airoha.git
+  URL:=https://github.com/Rossi15/atf-airoha.git
+  #MIRROR_HASH:=24d08b8d47b7c9fa83cda20bd80b38f5872dc48f8ec770cb82582e7fa0c5b75c
+  MIRROR_HASH:=50a23ec680e14a120bcd6c1ae7e96acced46c9bf86cb9a6aa5f30b4c54dbdf8d
   PROTO:=git
   FILE:=atf-airoha-$$$$(subst -,.,$$$$(SOURCE_DATE))~$$$$(call version_abbrev,$$$$(SOURCE_VERSION)).tar.zst
   SUBDIR:=atf-airoha
@@ -182,7 +247,11 @@ define Package/trusted-firmware-a/bl2/install
 		$(PKG_BUILD_DIR)/bl22.lzma \
 		$(PKG_BUILD_DIR)/bl23.lzma \
 		$(PKG_BUILD_DIR)/flash_table.lzma \
-		$(STAGING_DIR_IMAGE)/$(BUILD_SUBTARGET)-bl2.bin
+		$(PKG_BUILD_DIR)/$(BUILD_VARIANT).bin
+
+	$(STAGING_DIR_HOST)/bin/fiptool create \
+		--tb-fw $(PKG_BUILD_DIR)/$(BUILD_VARIANT).bin \
+		$(STAGING_DIR_IMAGE)/$(BUILD_VARIANT).fip
 endef
 
 define Package/trusted-firmware-a/bl31/install

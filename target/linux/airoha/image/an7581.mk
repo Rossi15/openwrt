@@ -1,14 +1,5 @@
-define Build/an7581-emmc-bl2-bl31-uboot
-  head -c $$((0x800)) /dev/zero > $@
-  cat $(STAGING_DIR_IMAGE)/an7581_$1-bl2.fip >> $@
-  dd if=$(STAGING_DIR_IMAGE)/an7581_$1-bl31-u-boot.fip of=$@ bs=1 seek=$$((0x20000)) conv=notrunc
-endef
-
 define Build/an7581-preloader
-  $(STAGING_DIR_HOST)/bin/fiptool create \
-		--tb-fw $(STAGING_DIR_IMAGE)/an7581-bl2.bin \
-		$(STAGING_DIR_IMAGE)/an7581_$1-bl2.fip
-  cat $(STAGING_DIR_IMAGE)/an7581_$1-bl2.fip >> $@
+  cat $(STAGING_DIR_IMAGE)/an7581-$1-bl2.fip >> $@
 endef
 
 define Build/an7581-bl31-uboot
@@ -46,6 +37,14 @@ define Build/an7581-chainloader
   cat $(STAGING_DIR_IMAGE)/an7581_$1-chainload-u-boot.itb >> $@
 endef
 
+define Build/tplink-xb432v-kernel-header
+	dd if=/dev/zero of=$@.hdr bs=1 count=512 2>/dev/null
+	printf '\003\000\000\003' | dd of=$@.hdr bs=1 seek=0 conv=notrunc 2>/dev/null
+	printf '\000\376\237\003' | dd of=$@.hdr bs=1 seek=120 conv=notrunc 2>/dev/null
+	cat $@ >> $@.hdr
+	mv $@.hdr $@
+endef
+
 define Device/FitImageLzma
 	KERNEL_SUFFIX := -uImage.itb
 	KERNEL = kernel-bin | lzma | fit lzma $$(KDIR)/image-$$(DEVICE_DTS).dtb
@@ -62,7 +61,7 @@ define Device/airoha_an7581-evb-multievb
   DEVICE_DTS := an7581-evb-multievb
   DEVICE_DTS_OVERLAY := an7581-evb an7581-evb-emmc-eagle an7581-evb-emmc-kite
   IMAGE/sysupgrade.bin := append-kernel | pad-to 128k | append-rootfs | pad-rootfs | append-metadata
-  ARTIFACT/preloader.bin := an7581-preloader rfb
+  ARTIFACT/preloader.bin := an7581-preloader emmc-snand-ubi-128k
   ARTIFACT/bl31-uboot.fip := an7581-bl31-uboot rfb
   ARTIFACTS := preloader.bin bl31-uboot.fip
 endef
@@ -115,7 +114,7 @@ define Device/nokia_valyrian
     kmod-sfp aeonsemi-as21xxx-firmware \
     kmod-mt7996-firmware airoha-en7581-mt7996-npu-firmware \
     kmod-usb3
-  ARTIFACT/preloader.bin := an7581-preloader nokia_valyrian
+  ARTIFACT/preloader.bin := an7581-preloader emmc
   ARTIFACT/bl31-uboot.fip := an7581-bl31-uboot nokia_valyrian
   ARTIFACTS := preloader.bin bl31-uboot.fip
 endef
@@ -162,7 +161,7 @@ define Device/nokia_xg-040g-md-ubi
 	append-metadata
   DEVICE_PACKAGES += fitblk
   ARTIFACT/bl31-uboot.fip := an7581-bl31-uboot nokia_xg-040g-md
-  ARTIFACT/preloader.bin := an7581-preloader nokia_xg-040g-md
+  ARTIFACT/preloader.bin := an7581-preloader snand-ubi-128k
   ARTIFACTS := bl31-uboot.fip preloader.bin
 endef
 TARGET_DEVICES += nokia_xg-040g-md-ubi
@@ -197,3 +196,50 @@ define Device/quantum_q1000k-ubi
   SOC := an7581
 endef
 TARGET_DEVICES += quantum_q1000k-ubi
+
+define Device/tplink_xb432v-common
+  $(call Device/FitImageLzma)
+  DEVICE_VENDOR := TP-Link
+  DEVICE_MODEL := XB432v
+  BLOCKSIZE := 256k
+  PAGESIZE := 4096
+  UBINIZE_OPTS := -E 5
+  DEVICE_PACKAGES := airoha-en7581-npu-firmware airoha-en8811h-firmware \
+    kmod-mt7992-firmware kmod-phy-airoha-en8811h kmod-usb3 \
+    kmod-usb-ledtrig-usbport wpad-basic-mbedtls
+  SOC := an7551
+endef
+
+define Device/tplink_xb432v
+  $(call Device/tplink_xb432v-common)
+  DEVICE_DTS := an7551-tplink-xb432v
+  DEVICE_DTS_CONFIG := config@1
+  IMAGE_SIZE := 61184k
+  KERNEL_SIZE := 10240k
+  KERNEL := kernel-bin | lzma | \
+    fit lzma $$(KDIR)/image-$$(DEVICE_DTS).dtb | \
+    tplink-xb432v-kernel-header
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += tplink_xb432v
+
+define Device/tplink_xb432v-ubi
+  $(call Device/tplink_xb432v-common)
+  DEVICE_VARIANT := (UBI)
+  DEVICE_DTS := an7551-tplink-xb432v-ubi
+  UBOOTENV_IN_UBI := 1
+  KERNEL_IN_UBI := 1
+  KERNEL := kernel-bin | gzip
+  KERNEL_INITRAMFS := kernel-bin | lzma | \
+	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd | pad-to 128k
+  KERNEL_INITRAMFS_SUFFIX := -recovery.itb
+  IMAGES := sysupgrade.itb
+  IMAGE/sysupgrade.itb := append-kernel | \
+	fit gzip $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb external-static-with-rootfs | \
+	append-metadata
+  DEVICE_PACKAGES += fitblk
+  ARTIFACT/bl31-uboot.fip := an7581-bl31-uboot tplink_xb432v
+  ARTIFACT/preloader.bin := an7581-preloader snand-ubi-1m
+  ARTIFACTS := bl31-uboot.fip preloader.bin
+endef
+TARGET_DEVICES += tplink_xb432v-ubi
