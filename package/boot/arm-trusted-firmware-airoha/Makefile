@@ -30,7 +30,9 @@ define Trusted-Firmware-A/an7581-bl2
   $(call Trusted-Firmware-A/bl2/Default)
   BUILD_SUBTARGET:=an7581
   SOC:=EN7581
-  BUILD_DEVICES:=airoha_an7581-evb airoha_an7581-evb-emmc-eagle airoha_an7581-evb-emmc-kite nokia_valyrian nokia_xg-040g-md-ubi
+  BUILD_DEVICES:=airoha_an7581-evb airoha_an7581-evb-emmc-eagle \
+  airoha_an7581-evb-emmc-kite nokia_valyrian nokia_xg-040g-md-ubi \
+  tplink_xb432v-ubi
 endef
 
 define Trusted-Firmware-A/an7583-bl2
@@ -51,7 +53,9 @@ define Trusted-Firmware-A/an7581-bl31
   $(call Trusted-Firmware-A/bl31/Default)
   BUILD_SUBTARGET:=an7581
   SOC:=EN7581
-  BUILD_DEVICES:=airoha_an7581-evb airoha_an7581-evb-emmc-eagle airoha_an7581-evb-emmc-kite nokia_valyrian nokia_xg-040g-md-ubi
+  BUILD_DEVICES:=airoha_an7581-evb airoha_an7581-evb-emmc-eagle \
+  	airoha_an7581-evb-emmc-kite nokia_valyrian nokia_xg-040g-md-ubi \
+	tplink_xb432v-ubi
 endef
 
 define Trusted-Firmware-A/an7583-bl31
@@ -74,6 +78,8 @@ TFA_MAKE_FLAGS= \
 	TCSUPPORT_CPU_$(SOC)=1 TCSUPPORT_CPU_EN7523=1 \
 	TCSUPPORT_CPU_ARMV8=1 TCSUPPORT_UBOOT_64BIT=1 \
 	TCSUPPORT_EMMC=1 TCSUPPORT_UBOOT=1 TCSUPPORT_BL2_OPTIMIZATION=1 \
+	TCSUPPORT_UBI_SUPPORT=1 TCSUPPORT_SPI_NAND_FLASH_ECC_DMA=1 \
+	OVERRIDE_UBI_START_ADDR=0x100000 \
 	TOOLS_DIR=$(STAGING_DIR_HOST)/bin
 
 BL2_GCC_NAME:=arm-gnu-toolchain
@@ -92,10 +98,18 @@ endif
 endef
 
 define Download/atf-airoha
-  SOURCE_DATE:=2026-09-30
-  SOURCE_VERSION:=705478c3d84fb1cba4c2de1bb99c43098b785d61
-  URL:=https://github.com/Ansuel/atf-airoha.git
-  MIRROR_HASH:=24d08b8d47b7c9fa83cda20bd80b38f5872dc48f8ec770cb82582e7fa0c5b75c
+  #SOURCE_DATE:=2026-09-30
+  #SOURCE_DATE:=2026-10-02
+  SOURCE_DATE:=2026-10-06
+  #SOURCE_VERSION:=705478c3d84fb1cba4c2de1bb99c43098b785d61
+  #SOURCE_VERSION:=f03e2ceb7cfb94dba3089a4b2c7b4e15d686bbac
+  SOURCE_VERSION:=3ee9de611a76d70f5979342f5a79ffe1017998bf
+  #URL:=https://github.com/Ansuel/atf-airoha.git
+  #URL:=https://github.com/mkshevetskiy/atf-airoha.git
+  URL:=https://github.com/Rossi15/atf-airoha.git
+  #MIRROR_HASH:=24d08b8d47b7c9fa83cda20bd80b38f5872dc48f8ec770cb82582e7fa0c5b75c
+  #MIRROR_HASH:=4d515c745ed8ab51ac34f72ce0a38537a1cf1815cd5cb38acb653b996388ea9a
+  MIRROR_HASH:=868707f4906788cf98646da177c660f9eea9ee22c7c9d24f01ecc426191c3c2d
   PROTO:=git
   FILE:=atf-airoha-$$$$(subst -,.,$$$$(SOURCE_DATE))~$$$$(call version_abbrev,$$$$(SOURCE_VERSION)).tar.zst
   SUBDIR:=atf-airoha

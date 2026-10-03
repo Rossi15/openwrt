@@ -1,0 +1,94 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+
+#include "an7551-tplink-xb432v-common.dtsi"
+
+/ {
+	model = "TP-Link XB432v";
+	compatible = "tplink,xb432v", "airoha,an7581", "airoha,en7581";
+
+	chosen {
+		bootargs-append = "console=ttyS0,115200 earlycon root=/dev/ubiblock0_0";
+	};
+};
+
+&partitions {
+		partition@0 {
+			label = "boot";
+			reg = <0x0 0xc0000>;
+			read-only;
+		};
+
+		partition@c0000 {
+			label = "art";
+			reg = <0xc0000 0x380000>;
+			read-only;
+
+			nvmem-layout {
+				compatible = "fixed-layout";
+				#address-cells = <1>;
+				#size-cells = <1>;
+
+				wifi_eeprom: eeprom@40000 {
+					reg = <0x40000 0x1e00>;
+				};
+			};
+		};
+
+		partition@440000 {
+			label = "misc";
+			reg = <0x440000 0x400000>;
+			read-only;
+
+			nvmem-layout {
+				compatible = "fixed-layout";
+				#address-cells = <1>;
+				#size-cells = <1>;
+
+				base_mac: macaddr@8f100 {
+					compatible = "mac-base";
+					reg = <0x8f100 0x6>;
+					#nvmem-cell-cells = <1>;
+				};
+			};
+		};
+
+		partition@840000 {
+			label = "kernel";
+			reg = <0x840000 0xa00000>;
+		};
+
+		partition@1240000 {
+			label = "ubi";
+			reg = <0x1240000 0x3bc0000>;
+		};
+
+		partition@4e00000 {
+			label = "kernel_slave";
+			reg = <0x4e00000 0xa00000>;
+			read-only;
+		};
+
+		partition@5800000 {
+			label = "rootfs_slave";
+			reg = <0x5800000 0x3bc0000>;
+			read-only;
+		};
+
+		partition@9bc0000 {
+			label = "boot_flag";
+			reg = <0x9bc0000 0x40000>;
+		};
+
+		partition@1d740000 {
+			label = "rawb_reserved";
+			reg = <0x1d740000 0x2880000>;
+			read-only;
+		};
+
+		partition@1ffc0000 {
+			label = "bmt_reserved";
+			reg = <0x1ffc0000 0x40000>;
+			read-only;
+		};
+	};
+};
