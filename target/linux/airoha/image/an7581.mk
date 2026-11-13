@@ -1,14 +1,5 @@
-define Build/an7581-emmc-bl2-bl31-uboot
-  head -c $$((0x800)) /dev/zero > $@
-  cat $(STAGING_DIR_IMAGE)/an7581_$1-bl2.fip >> $@
-  dd if=$(STAGING_DIR_IMAGE)/an7581_$1-bl31-u-boot.fip of=$@ bs=1 seek=$$((0x20000)) conv=notrunc
-endef
-
 define Build/an7581-preloader
-  $(STAGING_DIR_HOST)/bin/fiptool create \
-		--tb-fw $(STAGING_DIR_IMAGE)/an7581-bl2.bin \
-		$(STAGING_DIR_IMAGE)/an7581_$1-bl2.fip
-  cat $(STAGING_DIR_IMAGE)/an7581_$1-bl2.fip >> $@
+  cat $(STAGING_DIR_IMAGE)/an7581-$1-bl2.fip >> $@
 endef
 
 define Build/an7581-bl31-uboot
@@ -62,7 +53,7 @@ define Device/airoha_an7581-evb-multievb
   DEVICE_DTS := an7581-evb-multievb
   DEVICE_DTS_OVERLAY := an7581-evb an7581-evb-emmc-eagle an7581-evb-emmc-kite
   IMAGE/sysupgrade.bin := append-kernel | pad-to 128k | append-rootfs | pad-rootfs | append-metadata
-  ARTIFACT/preloader.bin := an7581-preloader rfb
+  ARTIFACT/preloader.bin := an7581-preloader emmc-snand-ubi-128k
   ARTIFACT/bl31-uboot.fip := an7581-bl31-uboot rfb
   ARTIFACTS := preloader.bin bl31-uboot.fip
 endef
@@ -115,7 +106,7 @@ define Device/nokia_valyrian
     kmod-sfp aeonsemi-as21xxx-firmware \
     kmod-mt7996-firmware airoha-en7581-mt7996-npu-firmware \
     kmod-usb3
-  ARTIFACT/preloader.bin := an7581-preloader nokia_valyrian
+  ARTIFACT/preloader.bin := an7581-preloader emmc
   ARTIFACT/bl31-uboot.fip := an7581-bl31-uboot nokia_valyrian
   ARTIFACTS := preloader.bin bl31-uboot.fip
 endef
@@ -162,7 +153,7 @@ define Device/nokia_xg-040g-md-ubi
 	append-metadata
   DEVICE_PACKAGES += fitblk
   ARTIFACT/bl31-uboot.fip := an7581-bl31-uboot nokia_xg-040g-md
-  ARTIFACT/preloader.bin := an7581-preloader nokia_xg-040g-md
+  ARTIFACT/preloader.bin := an7581-preloader snand-ubi-128k
   ARTIFACTS := bl31-uboot.fip preloader.bin
 endef
 TARGET_DEVICES += nokia_xg-040g-md-ubi

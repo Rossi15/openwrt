@@ -1,8 +1,5 @@
 define Build/an7583-preloader
-  $(STAGING_DIR_HOST)/bin/fiptool create \
-		--tb-fw $(STAGING_DIR_IMAGE)/an7583-bl2.bin \
-		$(STAGING_DIR_IMAGE)/an7583_$1-bl2.fip
-  cat $(STAGING_DIR_IMAGE)/an7583_$1-bl2.fip >> $@
+  cat $(STAGING_DIR_IMAGE)/an7583-$1-bl2.fip >> $@
 endef
 
 define Build/an7583-bl31-uboot
@@ -30,7 +27,7 @@ define Device/airoha_an7583-evb-multievb
   DEVICE_DTS_OVERLAY := an7583-evb an7583-evb-emmc
   IMAGE/sysupgrade.bin := append-kernel | pad-to 128k | append-rootfs | \
 	pad-rootfs | append-metadata
-  ARTIFACT/preloader.bin := an7583-preloader rfb
+  ARTIFACT/preloader.bin := an7583-preloader emmc-snand-ubi-128k
   ARTIFACT/bl31-uboot.fip := an7583-bl31-uboot rfb
   ARTIFACTS := preloader.bin bl31-uboot.fip
 endef
@@ -76,7 +73,7 @@ define Device/nokia_xg-040g-mf-ubi
 	append-metadata
   DEVICE_PACKAGES += fitblk
   ARTIFACT/bl31-uboot.fip := an7583-bl31-uboot nokia_xg-040g-mf
-  ARTIFACT/preloader.bin := an7583-preloader nokia_xg-040g-mf
+  ARTIFACT/preloader.bin := an7583-preloader snand-ubi-128k
   ARTIFACTS := bl31-uboot.fip preloader.bin
 endef
 TARGET_DEVICES += nokia_xg-040g-mf-ubi
