@@ -48,6 +48,7 @@ define Trusted-Firmware-A/an7581-snand-ubi-1m-bl2
   SOC:=EN7581
   USE_UBI:=1
   UBI_START_ADDR:=0x100000
+  BUILD_DEVICES:=tplink_xb432v-ubi
 endef
 
 define Trusted-Firmware-A/an7581-emmc-bl2
@@ -101,7 +102,8 @@ define Trusted-Firmware-A/an7581-bl31
   $(call Trusted-Firmware-A/bl31/Default)
   BUILD_SUBTARGET:=an7581
   SOC:=EN7581
-  BUILD_DEVICES:=airoha_an7581-evb-multievb nokia_valyrian nokia_xg-040g-md-ubi
+  BUILD_DEVICES:=airoha_an7581-evb-multievb nokia_valyrian \
+    nokia_xg-040g-md-ubi tplink_xb432v-ubi
 endef
 
 define Trusted-Firmware-A/an7583-bl31
