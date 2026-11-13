@@ -41,6 +41,15 @@ define Trusted-Firmware-A/an7581-snand-ubi-128k-bl2
   BUILD_DEVICES:=nokia_xg-040g-md-ubi
 endef
 
+define Trusted-Firmware-A/an7581-snand-ubi-1m-bl2
+  $(call Trusted-Firmware-A/bl2/Default)
+  NAME:=Airoha an7581 bl2 (SPI-NAND, UBI at 0x100000)
+  BUILD_SUBTARGET:=an7581
+  SOC:=EN7581
+  USE_UBI:=1
+  UBI_START_ADDR:=0x100000
+endef
+
 define Trusted-Firmware-A/an7581-emmc-bl2
   $(call Trusted-Firmware-A/bl2/Default)
   NAME:=Airoha an7581 bl2 (eMMC)
@@ -105,6 +114,7 @@ endef
 
 TFA_TARGETS:= \
   an7581-snand-ubi-128k-bl2 \
+  an7581-snand-ubi-1m-bl2 \
   an7581-emmc-bl2 \
   an7581-emmc-snand-ubi-128k-bl2 \
   an7581-bl31 \
