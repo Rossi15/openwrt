@@ -153,10 +153,14 @@ endif
 endef
 
 define Download/atf-airoha
-  SOURCE_DATE:=2026-09-30
-  SOURCE_VERSION:=705478c3d84fb1cba4c2de1bb99c43098b785d61
-  URL:=https://github.com/Ansuel/atf-airoha.git
-  MIRROR_HASH:=24d08b8d47b7c9fa83cda20bd80b38f5872dc48f8ec770cb82582e7fa0c5b75c
+  #SOURCE_DATE:=2026-09-30
+  SOURCE_DATE:=2026-10-31
+  #SOURCE_VERSION:=705478c3d84fb1cba4c2de1bb99c43098b785d61
+  SOURCE_VERSION:=dcacedba36308032650ef8e1b279e2c02db7c077
+  #URL:=https://github.com/Ansuel/atf-airoha.git
+  URL:=https://github.com/Rossi15/atf-airoha.git
+  #MIRROR_HASH:=24d08b8d47b7c9fa83cda20bd80b38f5872dc48f8ec770cb82582e7fa0c5b75c
+  MIRROR_HASH:=50a23ec680e14a120bcd6c1ae7e96acced46c9bf86cb9a6aa5f30b4c54dbdf8d
   PROTO:=git
   FILE:=atf-airoha-$$$$(subst -,.,$$$$(SOURCE_DATE))~$$$$(call version_abbrev,$$$$(SOURCE_VERSION)).tar.zst
   SUBDIR:=atf-airoha
